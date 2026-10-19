@@ -1,0 +1,956 @@
+<!doctype html>
+<html lang="bn">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0f766e">
+<meta name="color-scheme" content="light dark">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<title>ডিউটি হিসাব</title>
+<style>
+:root{
+  --bg:#f3f6f5;--card:#fff;--ink:#12211d;--muted:#5a6c66;--line:#dce5e1;
+  --acc:#0f766e;--acc-ink:#fff;--acc-soft:#d9f0ec;
+  --ot:#b45309;--ot-soft:#fdecc8;--bad:#b42318;--bad-soft:#fde4e1;--off:#6b7a75;--off-soft:#e9eeec;
+  --shadow:0 1px 2px rgba(18,33,29,.06),0 4px 14px rgba(18,33,29,.05);
+}
+@media (prefers-color-scheme:dark){
+  :root{
+    --bg:#0d1412;--card:#151f1c;--ink:#e7f0ed;--muted:#96a8a1;--line:#24332f;
+    --acc:#2dd4bf;--acc-ink:#04211d;--acc-soft:#123a35;
+    --ot:#fbbf24;--ot-soft:#3a2d0c;--bad:#fca5a5;--bad-soft:#3b1815;--off:#9db0a9;--off-soft:#1f2c28;
+    --shadow:none;
+  }
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 system-ui,-apple-system,"Segoe UI","Noto Sans Bengali","Kohinoor Bangla",sans-serif;
+  padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left)}
+.wrap{max-width:560px;margin:0 auto;padding:12px 16px 40px}
+.top{display:flex;align-items:center;justify-content:space-between;padding:6px 0 12px}
+.brand{display:flex;align-items:center;gap:10px}
+.brand h1{font-size:20px;margin:0;font-weight:700;letter-spacing:.2px}
+.logo{width:34px;height:34px;border-radius:10px;background:var(--acc);color:var(--acc-ink);display:grid;place-items:center}
+.icon-btn{width:44px;height:44px;border-radius:12px;border:1px solid var(--line);background:var(--card);color:var(--ink);display:grid;place-items:center;cursor:pointer}
+.icon-btn:focus-visible,.btn:focus-visible,input:focus-visible,select:focus-visible,summary:focus-visible,.chip-btn:focus-visible{outline:3px solid var(--acc);outline-offset:2px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px;margin:0 0 14px;box-shadow:var(--shadow)}
+.card h2{font-size:16px;margin:0 0 4px}
+label{display:block;font-weight:600;font-size:14px;margin:0 0 6px}
+.row{display:flex;gap:10px}
+input[type=text],input[type=number],input[type=month],select{
+  width:100%;min-height:48px;padding:10px 12px;font:inherit;font-size:18px;color:var(--ink);background:var(--bg);
+  border:1.5px solid var(--line);border-radius:12px}
+#iq{letter-spacing:.5px;font-variant-numeric:tabular-nums}
+select{font-size:16px}
+.btn{min-height:48px;padding:0 18px;border-radius:12px;border:1.5px solid var(--line);background:var(--card);color:var(--ink);
+  font:inherit;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:8px}
+.btn.primary{background:var(--acc);border-color:var(--acc);color:var(--acc-ink)}
+.btn.danger{color:var(--bad)}
+.btn[disabled]{opacity:.5;cursor:not-allowed}
+.btn.small{min-height:40px;padding:0 12px;font-size:14px}
+.muted,.hint{color:var(--muted);font-size:14px;margin:6px 0 0}
+.hint{min-height:21px}
+.who .name{font-size:19px;font-weight:700;line-height:1.3;word-break:break-word}
+.who .meta{color:var(--muted);font-size:14px;margin-top:4px;word-break:break-word}
+.months{display:flex;gap:8px;overflow-x:auto;padding:2px 0 12px;margin:0 -2px}
+.chip-btn{flex:0 0 auto;min-height:40px;padding:0 14px;border-radius:999px;border:1.5px solid var(--line);background:var(--card);color:var(--ink);font:inherit;font-size:14px;font-weight:600;cursor:pointer}
+.chip-btn[aria-pressed=true]{background:var(--acc);border-color:var(--acc);color:var(--acc-ink)}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:12px}
+.tile{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:12px 10px;text-align:center;box-shadow:var(--shadow)}
+.tile span{display:block;font-size:13px;color:var(--muted);font-weight:600}
+.tile b{display:block;font-size:30px;line-height:1.15;margin-top:2px;font-variant-numeric:tabular-nums}
+.tile.total{background:var(--acc);border-color:var(--acc);color:var(--acc-ink)}
+.tile.total span{color:inherit;opacity:.85}
+.tile.ot{background:var(--ot-soft);border-color:transparent}
+.tile.ot b,.tile.ot span{color:var(--ot)}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:8px}
+.chips span{background:var(--card);border:1px solid var(--line);border-radius:999px;padding:6px 12px;font-size:14px}
+.chips b{font-variant-numeric:tabular-nums}
+.rule{font-size:13px;color:var(--muted);margin:0 0 14px}
+details.card{padding:0}
+details summary{list-style:none;padding:14px 16px;font-weight:700;cursor:pointer;display:flex;justify-content:space-between;align-items:center}
+details summary::-webkit-details-marker{display:none}
+details summary::after{content:"";width:9px;height:9px;border-right:2px solid var(--muted);border-bottom:2px solid var(--muted);transform:rotate(45deg);transition:transform .15s}
+details[open] summary::after{transform:rotate(-135deg)}
+.days{list-style:none;margin:0;padding:0 16px 8px}
+.days li{display:grid;grid-template-columns:62px 1fr 74px;align-items:center;gap:10px;padding:7px 0;border-top:1px solid var(--line)}
+.dt{font-size:13px;color:var(--muted);line-height:1.2}
+.dt b{display:inline-block;min-width:22px;color:var(--ink);font-size:16px;font-variant-numeric:tabular-nums}
+.dt.fri{color:var(--acc)}
+.bar{height:12px;background:var(--off-soft);border-radius:6px;overflow:hidden;display:flex}
+.bar i{display:block;height:100%}
+.bar .r{background:var(--acc)}
+.bar .o{background:var(--ot)}
+.hv{text-align:right;font-weight:700;font-variant-numeric:tabular-nums;white-space:nowrap}
+.hv em{font-style:normal;font-weight:600;color:var(--ot);font-size:13px;margin-left:4px}
+.tag{display:inline-block;border-radius:999px;padding:1px 9px;font-size:12px;font-weight:700}
+.tag.a{background:var(--bad-soft);color:var(--bad)}
+.tag.f{background:var(--off-soft);color:var(--off)}
+table.sum{width:100%;border-collapse:collapse;font-size:14px;font-variant-numeric:tabular-nums}
+table.sum th,table.sum td{padding:8px 4px;text-align:right;border-top:1px solid var(--line)}
+table.sum th:first-child,table.sum td:first-child{text-align:left}
+table.sum thead th{border-top:0;color:var(--muted);font-weight:600;font-size:13px}
+.empty{text-align:center;padding:26px 12px}
+.empty b{display:block;font-size:17px;margin-bottom:4px}
+.badge{display:inline-block;font-size:12px;font-weight:700;color:var(--ot);background:var(--ot-soft);border-radius:999px;padding:2px 10px;margin-left:8px}
+.warn{background:var(--ot-soft);color:var(--ot);border-radius:12px;padding:10px 12px;font-size:14px;margin:10px 0 0}
+.err{background:var(--bad-soft);color:var(--bad);border-radius:12px;padding:10px 12px;font-size:14px;margin:10px 0 0}
+.kv{display:grid;grid-template-columns:auto 1fr;gap:4px 14px;font-size:14px;margin:12px 0}
+.kv dt{color:var(--muted)}.kv dd{margin:0;font-weight:600;text-align:right}
+.saved{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 0;border-top:1px solid var(--line)}
+.saved:first-of-type{border-top:0}
+.saved .t{font-weight:700}.saved .s{font-size:13px;color:var(--muted)}
+.stack{display:grid;gap:10px;margin-top:12px}
+#toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom));transform:translateX(-50%) translateY(20px);background:var(--ink);color:var(--bg);
+  padding:10px 16px;border-radius:12px;font-size:14px;opacity:0;pointer-events:none;transition:.2s;max-width:90vw;z-index:9}
+#toast.show{opacity:1;transform:translateX(-50%)}
+[hidden]{display:none!important}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <div class="brand">
+      <span class="logo" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></span>
+      <h1>ডিউটি হিসাব<span class="badge" id="offBadge" hidden>অফলাইন</span></h1>
+    </div>
+    <button class="icon-btn" id="btnAdmin" aria-label="আপলোড ও সেটিং">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15V4M12 4l-4 4M12 4l4 4"/><path d="M4 15v3a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-3"/></svg>
+    </button>
+  </header>
+
+  <section id="vSearch">
+    <form id="form" class="card" autocomplete="off">
+      <label for="iq">ইকামা নম্বর</label>
+      <div class="row">
+        <input id="iq" type="text" inputmode="numeric" enterkeyhint="search" autocomplete="off" autocapitalize="characters" placeholder="ইকামা নম্বর লিখুন" aria-describedby="hint">
+        <button class="btn primary" type="submit">দেখুন</button>
+      </div>
+      <p class="hint" id="hint"></p>
+    </form>
+    <div id="result" aria-live="polite"></div>
+  </section>
+
+  <section id="vAdmin" hidden>
+    <div class="card">
+      <h2>নতুন মাসের টাইমশিট</h2>
+      <p class="muted">মাসের এক্সেল ফাইল (.xlsx) দিন। একই মাস আবার দিলে আগেরটা বদলে যাবে।</p>
+      <div class="stack">
+        <label class="btn primary" for="file" style="margin:0">এক্সেল ফাইল বাছাই করুন</label>
+        <input type="file" id="file" accept=".xlsx,.csv,.tsv,.txt,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,text/csv" hidden>
+      </div>
+      <div id="preview"></div>
+    </div>
+    <div class="card">
+      <h2>সংরক্ষিত মাস</h2>
+      <div id="saved"></div>
+    </div>
+    <div class="card">
+      <h2>হিসাবের নিয়ম</h2>
+      <label for="basic" style="margin-top:8px">বেসিক ঘন্টা (প্রতিদিন)</label>
+      <input id="basic" type="number" inputmode="decimal" min="1" max="24" step="0.5">
+      <p class="muted">এর বেশি যত ঘন্টা, সবই ওভারটাইম। শুক্রবার বা অন্য দিনের জন্য আলাদা নিয়ম নেই।</p>
+    </div>
+    <button class="btn" id="btnBack" type="button">← ফিরে যান</button>
+  </section>
+</div>
+<div id="toast" role="status"></div>
+
+<script>/* XlsxLite - dependency-free .xlsx / .csv reader (browser + node).
+   Reads sheet names and cell values only. Works fully offline. */
+(function (root, factory) {
+  if (typeof module === 'object' && module.exports) module.exports = factory();
+  else root.XlsxLite = factory();
+})(typeof self !== 'undefined' ? self : this, function () {
+  'use strict';
+
+  /* ---------- inflate (RFC 1951), port of zlib's puff.c ---------- */
+  var LENS = [3,4,5,6,7,8,9,10,11,13,15,17,19,23,27,31,35,43,51,59,67,83,99,115,131,163,195,227,258];
+  var LEXT = [0,0,0,0,0,0,0,0,1,1,1,1,2,2,2,2,3,3,3,3,4,4,4,4,5,5,5,5,0];
+  var DISTS = [1,2,3,4,5,7,9,13,17,25,33,49,65,97,129,193,257,385,513,769,1025,1537,2049,3073,4097,6145,8193,12289,16385,24577];
+  var DEXT = [0,0,0,0,1,1,2,2,3,3,4,4,5,5,6,6,7,7,8,8,9,9,10,10,11,11,12,12,13,13];
+  var ORDER = [16,17,18,0,8,7,9,6,10,5,11,4,12,3,13,2,14,1,15];
+
+  function construct(lengths, n) {
+    var count = new Uint16Array(16), symbol = new Uint16Array(n), offs = new Uint16Array(16), i;
+    for (i = 0; i < n; i++) count[lengths[i]]++;
+    for (i = 1; i < 15; i++) offs[i + 1] = offs[i] + count[i];
+    for (i = 0; i < n; i++) if (lengths[i] !== 0) symbol[offs[lengths[i]]++] = i;
+    return { count: count, symbol: symbol };
+  }
+
+  var FIXED_L, FIXED_D;
+  function fixedTables() {
+    if (FIXED_L) return;
+    var l = new Uint8Array(288), i;
+    for (i = 0; i < 144; i++) l[i] = 8;
+    for (; i < 256; i++) l[i] = 9;
+    for (; i < 280; i++) l[i] = 7;
+    for (; i < 288; i++) l[i] = 8;
+    FIXED_L = construct(l, 288);
+    var d = new Uint8Array(30);
+    for (i = 0; i < 30; i++) d[i] = 5;
+    FIXED_D = construct(d, 30);
+  }
+
+  function inflateRaw(src, sizeHint) {
+    var pos = 0, bitbuf = 0, bitcnt = 0;
+    var out = new Uint8Array(Math.max(sizeHint || 0, src.length * 4, 1024)), op = 0;
+
+    function bits(need) {
+      var val = bitbuf;
+      while (bitcnt < need) {
+        if (pos >= src.length) throw new Error('inflate: unexpected end of data');
+        val |= src[pos++] << bitcnt;
+        bitcnt += 8;
+      }
+      bitbuf = val >>> need;
+      bitcnt -= need;
+      return val & ((1 << need) - 1);
+    }
+    function decode(h) {
+      var code = 0, first = 0, index = 0;
+      for (var len = 1; len <= 15; len++) {
+        code |= bits(1);
+        var count = h.count[len];
+        if (code - count < first) return h.symbol[index + (code - first)];
+        index += count; first += count; first <<= 1; code <<= 1;
+      }
+      throw new Error('inflate: bad huffman code');
+    }
+    function ensure(extra) {
+      if (op + extra <= out.length) return;
+      var n = out.length * 2;
+      while (n < op + extra) n *= 2;
+      var o2 = new Uint8Array(n); o2.set(out.subarray(0, op)); out = o2;
+    }
+    function codes(lc, dc) {
+      for (;;) {
+        var sym = decode(lc);
+        if (sym < 256) { ensure(1); out[op++] = sym; }
+        else if (sym === 256) return;
+        else {
+          sym -= 257;
+          if (sym >= 29) throw new Error('inflate: bad length symbol');
+          var len = LENS[sym] + bits(LEXT[sym]);
+          var ds = decode(dc);
+          if (ds >= 30) throw new Error('inflate: bad distance symbol');
+          var dist = DISTS[ds] + bits(DEXT[ds]);
+          if (dist > op) throw new Error('inflate: distance too far back');
+          ensure(len);
+          for (var k = 0; k < len; k++) { out[op] = out[op - dist]; op++; }
+        }
+      }
+    }
+
+    var last;
+    do {
+      last = bits(1);
+      var type = bits(2);
+      if (type === 0) {
+        bitbuf = 0; bitcnt = 0;
+        if (pos + 4 > src.length) throw new Error('inflate: truncated stored block');
+        var len = src[pos] | (src[pos + 1] << 8);
+        pos += 4;
+        if (pos + len > src.length) throw new Error('inflate: truncated stored block');
+        ensure(len);
+        out.set(src.subarray(pos, pos + len), op);
+        op += len; pos += len;
+      } else if (type === 1) {
+        fixedTables();
+        codes(FIXED_L, FIXED_D);
+      } else if (type === 2) {
+        var nlen = bits(5) + 257, ndist = bits(5) + 1, ncode = bits(4) + 4, i;
+        var lengths = new Uint8Array(320);
+        for (i = 0; i < ncode; i++) lengths[ORDER[i]] = bits(3);
+        for (; i < 19; i++) lengths[ORDER[i]] = 0;
+        var lencode = construct(lengths.subarray(0, 19), 19);
+        var idx = 0, all = new Uint8Array(nlen + ndist);
+        while (idx < nlen + ndist) {
+          var s = decode(lencode);
+          if (s < 16) all[idx++] = s;
+          else {
+            var prev = 0, rep;
+            if (s === 16) {
+              if (idx === 0) throw new Error('inflate: no previous length');
+              prev = all[idx - 1]; rep = 3 + bits(2);
+            } else if (s === 17) rep = 3 + bits(3);
+            else rep = 11 + bits(7);
+            if (idx + rep > nlen + ndist) throw new Error('inflate: too many lengths');
+            while (rep--) all[idx++] = prev;
+          }
+        }
+        codes(construct(all.subarray(0, nlen), nlen), construct(all.subarray(nlen), ndist));
+      } else throw new Error('inflate: bad block type');
+    } while (!last);
+    return out.subarray(0, op);
+  }
+
+  /* ---------- zip ---------- */
+  function u16(b, o) { return b[o] | (b[o + 1] << 8); }
+  function u32(b, o) { return (b[o] | (b[o + 1] << 8) | (b[o + 2] << 16) | (b[o + 3] << 24)) >>> 0; }
+  function utf8(bytes) { return new TextDecoder('utf-8').decode(bytes); }
+
+  function unzip(buf) {
+    var b = new Uint8Array(buf), e = -1, i;
+    for (i = b.length - 22; i >= Math.max(0, b.length - 65557); i--) {
+      if (u32(b, i) === 0x06054b50) { e = i; break; }
+    }
+    if (e < 0) throw new Error('not a zip file');
+    var n = u16(b, e + 10), p = u32(b, e + 16), files = {};
+    for (i = 0; i < n; i++) {
+      if (u32(b, p) !== 0x02014b50) throw new Error('bad zip directory');
+      var nl = u16(b, p + 28), el = u16(b, p + 30), cl = u16(b, p + 32);
+      files[utf8(b.subarray(p + 46, p + 46 + nl))] = {
+        method: u16(b, p + 10), csize: u32(b, p + 20), usize: u32(b, p + 24), lo: u32(b, p + 42)
+      };
+      p += 46 + nl + el + cl;
+    }
+    return { b: b, files: files };
+  }
+  function entryText(z, name) {
+    var f = z.files[name];
+    if (!f) return null;
+    var b = z.b, start = f.lo + 30 + u16(b, f.lo + 26) + u16(b, f.lo + 28);
+    var data = b.subarray(start, start + f.csize);
+    if (f.method === 0) return utf8(data);
+    if (f.method === 8) return utf8(inflateRaw(data, f.usize));
+    throw new Error('unsupported zip compression');
+  }
+
+  /* ---------- xml helpers ---------- */
+  function unesc(s) {
+    if (s.indexOf('&') < 0) return s;
+    return s.replace(/&(#x[0-9a-fA-F]+|#\d+|amp|lt|gt|quot|apos);/g, function (m, g) {
+      if (g === 'amp') return '&'; if (g === 'lt') return '<'; if (g === 'gt') return '>';
+      if (g === 'quot') return '"'; if (g === 'apos') return "'";
+      var code = g.charAt(1) === 'x' ? parseInt(g.slice(2), 16) : parseInt(g.slice(1), 10);
+      return String.fromCodePoint(code);
+    });
+  }
+  function attr(s, name) {
+    var m = new RegExp('(?:^|\\s)' + name + '="([^"]*)"').exec(s);
+    return m ? unesc(m[1]) : null;
+  }
+  function selfClose(xml) { return xml.replace(/<(t|si|v|is)\s*\/>/g, '<$1></$1>'); }
+  function textOf(inner) {
+    var s = '', re = /<t\b[^>]*>([\s\S]*?)<\/t>/g, m;
+    while ((m = re.exec(inner))) s += m[1];
+    return unesc(s);
+  }
+  function colIdx(ref) {
+    var c = 0;
+    for (var i = 0; i < ref.length; i++) {
+      var k = ref.charCodeAt(i);
+      if (k >= 65 && k <= 90) c = c * 26 + (k - 64);
+      else if (k >= 97 && k <= 122) c = c * 26 + (k - 96);
+      else break;
+    }
+    return c - 1;
+  }
+  function isoToSerial(s) {
+    var t = Date.parse(s);
+    return isNaN(t) ? s : Math.round(t / 86400000) + 25569;
+  }
+
+  function parseShared(xml) {
+    var out = [], re = /<si\b[^>]*>([\s\S]*?)<\/si>/g, m;
+    xml = selfClose(xml);
+    while ((m = re.exec(xml))) out.push(textOf(m[1].replace(/<rPh\b[\s\S]*?<\/rPh>/g, '')));
+    return out;
+  }
+
+  function parseSheet(xml, shared) {
+    xml = selfClose(xml);
+    var rows = [], re = /<c\s+([^>]*?)(?:\/>|>([\s\S]*?)<\/c>)/g, m, maxR = -1;
+    while ((m = re.exec(xml))) {
+      var body = m[2];
+      if (body === undefined) continue;
+      var a = m[1], ref = attr(a, 'r');
+      if (!ref) continue;
+      var rn = parseInt(ref.replace(/^[A-Za-z]+/, ''), 10) - 1, cn = colIdx(ref);
+      var t = attr(a, 't'), val = null, vm;
+      if (t === 'inlineStr') {
+        var im = /<is>([\s\S]*?)<\/is>/.exec(body);
+        if (im) val = textOf(im[1]);
+      } else if ((vm = /<v>([\s\S]*?)<\/v>/.exec(body))) {
+        var raw = vm[1];
+        if (t === 's') val = shared[parseInt(raw, 10)];
+        else if (t === 'str') val = unesc(raw);
+        else if (t === 'b') val = raw === '1';
+        else if (t === 'e') val = null;
+        else if (t === 'd') val = isoToSerial(raw);
+        else { var n = parseFloat(raw); val = isNaN(n) ? unesc(raw) : n; }
+      }
+      if (val === undefined) val = null;
+      if (!rows[rn]) rows[rn] = [];
+      rows[rn][cn] = val;
+      if (rn > maxR) maxR = rn;
+    }
+    var res = [];
+    for (var r = 0; r <= maxR; r++) {
+      var row = rows[r] || [], dense = new Array(row.length);
+      for (var c = 0; c < row.length; c++) dense[c] = row[c] === undefined ? null : row[c];
+      res.push(dense);
+    }
+    return res;
+  }
+
+  function readXlsx(buf) {
+    var z = unzip(buf);
+    var wb = entryText(z, 'xl/workbook.xml');
+    if (!wb) throw new Error('not an xlsx workbook');
+    var rels = entryText(z, 'xl/_rels/workbook.xml.rels') || '';
+    var relMap = {}, m, re = /<Relationship\b([^>]*?)\/?>/g;
+    while ((m = re.exec(rels))) relMap[attr(m[1], 'Id')] = attr(m[1], 'Target');
+    var sst = entryText(z, 'xl/sharedStrings.xml');
+    var shared = sst ? parseShared(sst) : [];
+    var sheets = [], sre = /<sheet\b([^>]*?)\/?>/g, idx = 0;
+    while ((m = sre.exec(wb))) {
+      idx++;
+      var name = attr(m[1], 'name') || ('Sheet' + idx);
+      var rid = attr(m[1], 'r:id') || attr(m[1], 'id');
+      var target = relMap[rid] || ('worksheets/sheet' + idx + '.xml');
+      var path = target.charAt(0) === '/' ? target.slice(1) : 'xl/' + target;
+      var xml = entryText(z, path);
+      if (xml) sheets.push({ name: name, rows: parseSheet(xml, shared) });
+    }
+    return sheets;
+  }
+
+  /* ---------- csv ---------- */
+  function parseCSV(text) {
+    text = text.replace(/^﻿/, '');
+    var first = text.split(/\r?\n/, 1)[0] || '';
+    var sep = (first.match(/\t/g) || []).length > (first.match(/,/g) || []).length ? '\t' : ',';
+    var rows = [], row = [], cur = '', q = false, i, ch;
+    function push() {
+      var v = cur, t = v.trim();
+      if (t === '') row.push(null);
+      else if (/^-?\d+(\.\d+)?$/.test(t)) row.push(parseFloat(t));
+      else row.push(v);
+      cur = '';
+    }
+    for (i = 0; i < text.length; i++) {
+      ch = text[i];
+      if (q) {
+        if (ch === '"') { if (text[i + 1] === '"') { cur += '"'; i++; } else q = false; }
+        else cur += ch;
+      } else if (ch === '"') q = true;
+      else if (ch === sep) push();
+      else if (ch === '\n' || ch === '\r') {
+        if (ch === '\r' && text[i + 1] === '\n') i++;
+        push(); rows.push(row); row = [];
+      } else cur += ch;
+    }
+    if (cur !== '' || row.length) { push(); rows.push(row); }
+    return rows;
+  }
+
+  /* buf: ArrayBuffer/Uint8Array, filename: used only to pick csv vs xlsx */
+  function readFile(buf, filename) {
+    var b = new Uint8Array(buf);
+    if (b.length >= 4 && b[0] === 0x50 && b[1] === 0x4b) return readXlsx(b);
+    if (b.length >= 4 && b[0] === 0xd0 && b[1] === 0xcf && b[2] === 0x11 && b[3] === 0xe0)
+      throw new Error('OLD_XLS');
+    if (/\.(csv|txt|tsv)$/i.test(filename || '') || b.indexOf(0) < 0)
+      return [{ name: 'CSV', rows: parseCSV(utf8(b)) }];
+    throw new Error('UNSUPPORTED');
+  }
+
+  return { readFile: readFile, readXlsx: readXlsx, parseCSV: parseCSV, inflateRaw: inflateRaw };
+});
+</script>
+<script>/* Timesheet core: parse a timesheet sheet, summarize hours. No DOM. */
+(function (root, factory) {
+  if (typeof module === 'object' && module.exports) module.exports = factory();
+  else root.TSCore = factory();
+})(typeof self !== 'undefined' ? self : this, function () {
+  'use strict';
+
+  var BASIC_DEFAULT = 11;
+
+  /* Bengali / Arabic-Indic digits -> ASCII, strip spaces, uppercase */
+  function normIqama(v) {
+    if (v === null || v === undefined) return '';
+    var s = String(v), out = '';
+    for (var i = 0; i < s.length; i++) {
+      var c = s.charCodeAt(i);
+      if (c >= 0x09E6 && c <= 0x09EF) out += String(c - 0x09E6);
+      else if (c >= 0x0660 && c <= 0x0669) out += String(c - 0x0660);
+      else if (c >= 0x06F0 && c <= 0x06F9) out += String(c - 0x06F0);
+      else out += s.charAt(i);
+    }
+    return out.replace(/\s+/g, '').toUpperCase();
+  }
+
+  function cleanText(v) {
+    return v === null || v === undefined ? '' : String(v).replace(/\s+/g, ' ').trim();
+  }
+
+  function serialToDate(serial) {
+    return new Date(Date.UTC(1899, 11, 30) + Math.round(serial) * 86400000);
+  }
+  function dateToSerial(y, m, d) {
+    return Math.round((Date.UTC(y, m - 1, d) - Date.UTC(1899, 11, 30)) / 86400000);
+  }
+  function isSerial(v) {
+    return typeof v === 'number' && v >= 36526 && v <= 80000;
+  }
+
+  /* the month most days of the sheet fall in, as "YYYY-MM" */
+  function monthKeyOf(dates) {
+    var tally = {}, best = null;
+    dates.forEach(function (s) {
+      var d = serialToDate(s);
+      var k = d.getUTCFullYear() + '-' + ('0' + (d.getUTCMonth() + 1)).slice(-2);
+      tally[k] = (tally[k] || 0) + 1;
+    });
+    Object.keys(tally).forEach(function (k) { if (best === null || tally[k] > tally[best]) best = k; });
+    return best;
+  }
+
+  /* one day cell -> {h: hours, s: status} ; s: '' | 'A' absent | 'F' friday/off | other text */
+  function parseCell(v) {
+    if (v === null || v === undefined || v === '') return { h: 0, s: '' };
+    if (typeof v === 'number') return { h: v > 0 ? v : 0, s: '' };
+    var t = String(v).trim().toUpperCase();
+    if (t === '') return { h: 0, s: '' };
+    if (/^\d+(\.\d+)?$/.test(t)) return { h: parseFloat(t), s: '' };
+    if (t === 'A' || t === 'ABS' || t === 'ABSENT') return { h: 0, s: 'A' };
+    if (t === 'FRI' || t === 'F' || t === 'OFF' || t === 'HOL') return { h: 0, s: 'F' };
+    return { h: 0, s: '' };
+  }
+
+  /* rows: array of arrays (like sheet_to_json header:1). Returns {ok, ...} */
+  function parseSheetRows(rows) {
+    var h = -1, i, j;
+    for (i = 0; i < Math.min(rows.length, 40); i++) {
+      var r0 = rows[i] || [];
+      for (j = 0; j < r0.length; j++) {
+        if (typeof r0[j] === 'string' && /iqama|iqamah/i.test(r0[j])) { h = i; break; }
+      }
+      if (h >= 0) break;
+    }
+    if (h < 0) return { ok: false, error: 'NO_IQAMA_COLUMN' };
+
+    var head = rows[h].map(cleanText);
+    var iq = head.findIndex(function (c) { return /iqama/i.test(c); });
+    var nameCol = head.findIndex(function (c) { return /name/i.test(c); });
+    var tradeCol = head.findIndex(function (c) { return /trade|profession|job/i.test(c); });
+    var projCol = head.findIndex(function (c) { return /project/i.test(c); });
+    if (nameCol < 0) nameCol = iq > 0 ? iq - 2 : 0;
+
+    var dateCols = [], dateRow = -1, k, row;
+    var tries = [h - 1, h - 2, h - 3, h];
+    for (var t = 0; t < tries.length; t++) {
+      k = tries[t];
+      if (k < 0) continue;
+      row = rows[k] || [];
+      var cols = [];
+      for (j = iq + 1; j < row.length; j++) if (isSerial(row[j])) cols.push(j);
+      if (cols.length >= 20) { dateRow = k; dateCols = cols; break; }
+    }
+
+    var needMonth = false, dates = [];
+    if (dateCols.length) {
+      dates = dateCols.map(function (c) { return rows[dateRow][c]; });
+    } else {
+      /* fallback: weekday names in the header row */
+      for (j = Math.max(iq, projCol) + 1; j < head.length; j++) {
+        if (/^(MON|TUE|WED|THU|FRI|SAT|SUN)/i.test(head[j])) dateCols.push(j);
+      }
+      if (dateCols.length < 20) return { ok: false, error: 'NO_DATE_COLUMNS' };
+      needMonth = true;
+    }
+
+    var totalCol = -1, lastDate = dateCols[dateCols.length - 1];
+    [dateRow, h].forEach(function (rr) {
+      if (rr < 0 || totalCol >= 0) return;
+      var rw = rows[rr] || [];
+      for (var c = lastDate + 1; c < rw.length; c++) {
+        if (typeof rw[c] === 'string' && /^total$/i.test(rw[c].trim())) { totalCol = c; break; }
+      }
+    });
+
+    var n = dateCols.length, workers = {}, rowCount = 0, overlaps = [];
+    for (i = h + 1; i < rows.length; i++) {
+      row = rows[i] || [];
+      var iqama = normIqama(row[iq]);
+      var name = cleanText(row[nameCol]);
+      if (!iqama || !name || /^total/i.test(name)) continue;
+      rowCount++;
+      var w = workers[iqama];
+      if (!w) {
+        w = workers[iqama] = {
+          n: name, t: tradeCol >= 0 ? cleanText(row[tradeCol]) : '', p: [],
+          d: new Array(n).fill(0), s: new Array(n).fill(''), ft: null
+        };
+      }
+      var proj = projCol >= 0 ? cleanText(row[projCol]) : '';
+      if (proj && w.p.indexOf(proj) < 0) w.p.push(proj);
+      for (j = 0; j < n; j++) {
+        var c = parseCell(row[dateCols[j]]);
+        if (c.h > 0) {
+          if (w.d[j] > 0) overlaps.push({ iqama: iqama, name: name, day: j + 1 });
+          w.d[j] += c.h;
+        } else if (c.s) {
+          if (c.s === 'A') w.s[j] = 'A';
+          else if (!w.s[j]) w.s[j] = c.s;
+        }
+      }
+      if (totalCol >= 0 && typeof row[totalCol] === 'number') w.ft = (w.ft || 0) + row[totalCol];
+    }
+
+    var mismatches = [];
+    Object.keys(workers).forEach(function (q) {
+      var w = workers[q], sum = 0;
+      for (var d = 0; d < n; d++) { sum += w.d[d]; if (w.d[d] > 0) w.s[d] = ''; }
+      w.s = w.s.map(function (x) { return x || '.'; }).join('');
+      if (w.ft !== null && Math.abs(sum - w.ft) > 0.01) {
+        mismatches.push({ iqama: q, name: w.n, fileTotal: w.ft, calculated: sum });
+      }
+    });
+
+    return {
+      ok: true, needMonth: needMonth, dates: dates, days: n, month: dates.length ? monthKeyOf(dates) : null,
+      workers: workers, workerCount: Object.keys(workers).length, rowCount: rowCount,
+      mismatches: mismatches, overlaps: overlaps, hasTotalColumn: totalCol >= 0
+    };
+  }
+
+  /* when the sheet has no date row: first day = day 1 of "YYYY-MM" */
+  function applyMonth(parsed, ym) {
+    var p = ym.split('-'), y = +p[0], m = +p[1], start = dateToSerial(y, m, 1);
+    parsed.dates = [];
+    for (var i = 0; i < parsed.days; i++) parsed.dates.push(start + i);
+    parsed.month = ym;
+    parsed.needMonth = false;
+    return parsed;
+  }
+
+  /* choose the sheet that holds the most workers (the master sheet) */
+  function parseWorkbook(sheets) {
+    var results = sheets.map(function (sh) {
+      var r = parseSheetRows(sh.rows);
+      r.sheetName = sh.name;
+      return r;
+    });
+    var best = -1;
+    results.forEach(function (r, i) {
+      if (r.ok && (best < 0 || r.rowCount > results[best].rowCount)) best = i;
+    });
+    return { results: results, best: best };
+  }
+
+  /* worker + dates + basic hours -> totals and per-day rows */
+  function summarize(w, dates, basic) {
+    var total = 0, reg = 0, ot = 0, worked = 0, absent = 0, off = 0, daily = [];
+    for (var i = 0; i < w.d.length; i++) {
+      var h = w.d[i], st = w.s.charAt(i), r = 0, o = 0;
+      if (h > 0) {
+        r = Math.min(h, basic); o = Math.max(0, h - basic);
+        total += h; reg += r; ot += o; worked++;
+        st = '';
+      } else if (st === 'A') absent++;
+      else if (st === 'F') off++;
+      else st = '';
+      daily.push({ serial: dates[i], h: h, reg: r, ot: o, st: st });
+    }
+    function rd(x) { return Math.round(x * 100) / 100; }
+    return {
+      total: rd(total), regular: rd(reg), overtime: rd(ot),
+      workedDays: worked, absentDays: absent, offDays: off, daily: daily
+    };
+  }
+
+  return {
+    BASIC_DEFAULT: BASIC_DEFAULT, normIqama: normIqama, serialToDate: serialToDate,
+    parseSheetRows: parseSheetRows, parseWorkbook: parseWorkbook, applyMonth: applyMonth,
+    summarize: summarize, monthKeyOf: monthKeyOf
+  };
+});
+</script>
+<script>(function () {
+  'use strict';
+  var C = window.TSCore, X = window.XlsxLite;
+  var $ = function (s) { return document.querySelector(s); };
+
+  var BN_MONTHS = ['জানুয়ারি','ফেব্রুয়ারি','মার্চ','এপ্রিল','মে','জুন','জুলাই','আগস্ট','সেপ্টেম্বর','অক্টোবর','নভেম্বর','ডিসেম্বর'];
+  var BN_DAYS = ['রবি','সোম','মঙ্গল','বুধ','বৃহঃ','শুক্র','শনি'];
+
+  var months = {};          // "2026-09" -> record
+  var pending = null;       // file waiting to be saved
+  var state = { iq: '', month: null };
+  var memoryOnly = false;
+
+  /* ---------- small helpers ---------- */
+  function esc(s) {
+    return String(s).replace(/[&<>"']/g, function (c) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+    });
+  }
+  function lsGet(k, d) { try { var v = localStorage.getItem(k); return v === null ? d : v; } catch (e) { return d; } }
+  function lsSet(k, v) { try { localStorage.setItem(k, v); } catch (e) { /* ignore */ } }
+  function getBasic() {
+    var b = parseFloat(lsGet('basic', ''));
+    return b > 0 && b <= 24 ? b : C.BASIC_DEFAULT;
+  }
+  function monthLabel(key) {
+    var p = key.split('-');
+    return BN_MONTHS[+p[1] - 1] + ' ' + p[0];
+  }
+  function num(n) { return String(Math.round(n * 100) / 100); }
+  var toastTimer;
+  function toast(msg) {
+    var t = $('#toast'); t.textContent = msg; t.classList.add('show');
+    clearTimeout(toastTimer); toastTimer = setTimeout(function () { t.classList.remove('show'); }, 2800);
+  }
+
+  /* ---------- storage (IndexedDB, works offline) ---------- */
+  var dbp = null;
+  function openDb() {
+    if (dbp) return dbp;
+    dbp = new Promise(function (res, rej) {
+      if (!window.indexedDB) return rej(new Error('no idb'));
+      var r = indexedDB.open('duty-hours', 1);
+      r.onupgradeneeded = function () { r.result.createObjectStore('months', { keyPath: 'month' }); };
+      r.onsuccess = function () { res(r.result); };
+      r.onerror = function () { rej(r.error); };
+    });
+    return dbp;
+  }
+  function tx(mode, fn) {
+    return openDb().then(function (db) {
+      return new Promise(function (res, rej) {
+        var t = db.transaction('months', mode), st = t.objectStore('months'), out = fn(st);
+        t.oncomplete = function () { res(out && out.result !== undefined ? out.result : undefined); };
+        t.onerror = t.onabort = function () { rej(t.error); };
+      });
+    });
+  }
+  function dbAll() { return tx('readonly', function (s) { return s.getAll(); }); }
+  function dbPut(rec) { return tx('readwrite', function (s) { return s.put(rec); }); }
+  function dbDel(k) { return tx('readwrite', function (s) { return s.delete(k); }); }
+
+  /* ---------- views ---------- */
+  function show(view) {
+    $('#vSearch').hidden = view !== 'search';
+    $('#vAdmin').hidden = view !== 'admin';
+    $('#btnAdmin').hidden = view === 'admin';
+    window.scrollTo(0, 0);
+    if (view === 'admin') { renderSaved(); $('#basic').value = getBasic(); }
+    else $('#iq').focus({ preventScroll: true });
+  }
+
+  /* ---------- search ---------- */
+  function findMonths(iq) {
+    return Object.keys(months).sort().reverse().filter(function (m) { return months[m].workers[iq]; });
+  }
+
+  function search(raw) {
+    var iq = C.normIqama(raw);
+    state.iq = iq;
+    $('#iq').value = iq;
+    if (!iq) { $('#result').innerHTML = ''; $('#hint').textContent = 'ইকামা নম্বর লিখুন।'; return; }
+    $('#hint').textContent = '';
+    lsSet('lastIq', iq);
+    var found = findMonths(iq);
+    if (found.indexOf(state.month) < 0) state.month = found[0] || null;
+    render();
+  }
+
+  function render() {
+    var out = $('#result'), iq = state.iq;
+    if (!Object.keys(months).length) {
+      out.innerHTML = '<div class="card empty"><b>এখনো কোনো টাইমশিট নেই</b><span class="muted">উপরের ডানদিকের আপলোড বোতাম চেপে মাসের এক্সেল ফাইল দিন।</span></div>';
+      return;
+    }
+    if (!iq) { out.innerHTML = ''; return; }
+    var found = findMonths(iq);
+    if (!found.length) {
+      out.innerHTML = '<div class="card empty"><b>কোনো তথ্য পাওয়া যায়নি</b><span class="muted">ইকামা নম্বরটি আবার দেখে লিখুন। নম্বর ঠিক থাকলে অফিসে জানান।</span></div>';
+      return;
+    }
+    var basic = getBasic(), rec = months[state.month], w = rec.workers[iq], s = C.summarize(w, rec.dates, basic);
+
+    var chips = found.length > 1
+      ? '<div class="months" role="group" aria-label="মাস বাছাই">' + found.map(function (m) {
+          return '<button type="button" class="chip-btn" data-m="' + m + '" aria-pressed="' + (m === state.month) + '">' + esc(monthLabel(m)) + '</button>';
+        }).join('') + '</div>'
+      : '';
+
+    var maxH = 16;
+    s.daily.forEach(function (d) { if (d.h > maxH) maxH = d.h; });
+    var list = s.daily.map(function (d) {
+      var dt = C.serialToDate(d.serial), wd = dt.getUTCDay();
+      var left = '<span class="dt' + (wd === 5 ? ' fri' : '') + '"><b>' + dt.getUTCDate() + '</b> ' + BN_DAYS[wd] + '</span>';
+      if (d.h > 0) {
+        return '<li>' + left + '<span class="bar" aria-hidden="true"><i class="r" style="width:' + (d.reg / maxH * 100) + '%"></i><i class="o" style="width:' + (d.ot / maxH * 100) + '%"></i></span>' +
+          '<span class="hv">' + num(d.h) + (d.ot > 0 ? '<em>+' + num(d.ot) + '</em>' : '') + '</span></li>';
+      }
+      var tag = d.st === 'A' ? '<span class="tag a">অনুপস্থিত</span>' : d.st === 'F' ? '<span class="tag f">ছুটি</span>' : '<span class="muted" style="margin:0">—</span>';
+      return '<li>' + left + '<span></span><span class="hv">' + tag + '</span></li>';
+    }).join('');
+
+    var table = '';
+    if (found.length > 1) {
+      var sumAll = { t: 0, r: 0, o: 0 };
+      var rowsHtml = found.map(function (m) {
+        var x = C.summarize(months[m].workers[iq], months[m].dates, basic);
+        sumAll.t += x.total; sumAll.r += x.regular; sumAll.o += x.overtime;
+        return '<tr><td>' + esc(monthLabel(m)) + '</td><td>' + num(x.total) + '</td><td>' + num(x.regular) + '</td><td>' + num(x.overtime) + '</td></tr>';
+      }).join('');
+      table = '<div class="card"><h2>মাসওয়ারি হিসাব</h2><table class="sum"><thead><tr><th>মাস</th><th>মোট</th><th>বেসিক</th><th>ওভারটাইম</th></tr></thead><tbody>' + rowsHtml +
+        '<tr><td><b>সব মাস</b></td><td><b>' + num(sumAll.t) + '</b></td><td><b>' + num(sumAll.r) + '</b></td><td><b>' + num(sumAll.o) + '</b></td></tr></tbody></table></div>';
+    }
+
+    var meta = [w.t, w.p.length ? 'সাইট: ' + w.p.join(', ') : '', 'ইকামা ' + iq].filter(Boolean).map(esc).join(' · ');
+    out.innerHTML =
+      '<div class="card who"><div class="name">' + esc(w.n) + '</div><div class="meta">' + meta + '</div></div>' + chips +
+      '<div class="stats">' +
+        '<div class="tile total"><span>মোট ঘন্টা</span><b>' + num(s.total) + '</b></div>' +
+        '<div class="tile"><span>বেসিক ঘন্টা</span><b>' + num(s.regular) + '</b></div>' +
+        '<div class="tile ot"><span>ওভারটাইম</span><b>' + num(s.overtime) + '</b></div>' +
+      '</div>' +
+      '<div class="chips"><span>কাজের দিন <b>' + s.workedDays + '</b></span><span>অনুপস্থিত <b>' + s.absentDays + '</b></span><span>ছুটি <b>' + s.offDays + '</b></span></div>' +
+      '<p class="rule">প্রতিদিন ' + num(basic) + ' ঘন্টা পর্যন্ত বেসিক, তার বেশি ওভারটাইম। — ' + esc(monthLabel(state.month)) + '</p>' +
+      '<details class="card"><summary>দিনওয়ারি হিসাব</summary><ul class="days">' + list + '</ul></details>' + table;
+  }
+
+  /* ---------- admin: import ---------- */
+  var ERR = {
+    OLD_XLS: 'এটা পুরনো .xls ফাইল। এক্সেলে "Save As" করে .xlsx হিসেবে সেভ করে আবার দিন।',
+    UNSUPPORTED: 'ফাইলটি চেনা যায়নি। .xlsx ফাইল দিন।',
+    NONE: 'কোনো শিটে "Iqama No." কলাম বা দিনের তারিখ পাওয়া যায়নি। ফাইলের ফরম্যাট আগের মাসের মতো আছে কিনা দেখুন।'
+  };
+
+  function onFile(e) {
+    var f = e.target.files && e.target.files[0];
+    if (!f) return;
+    var box = $('#preview');
+    box.innerHTML = '<p class="muted">ফাইল পড়া হচ্ছে…</p>';
+    f.arrayBuffer().then(function (buf) {
+      var sheets = X.readFile(buf, f.name), wb = C.parseWorkbook(sheets);
+      if (wb.best < 0) throw new Error('NONE');
+      pending = { name: f.name, wb: wb, sel: wb.best, ym: '' };
+      renderPreview();
+    }).catch(function (err) {
+      pending = null;
+      box.innerHTML = '<div class="err">' + esc(ERR[err.message] || 'ফাইলটি পড়া যায়নি। .xlsx ফাইল আবার দিন।') + '</div>';
+    });
+    e.target.value = '';
+  }
+
+  function renderPreview() {
+    var box = $('#preview');
+    if (!pending) { box.innerHTML = ''; return; }
+    var wb = pending.wb, p = wb.results[pending.sel];
+    var opts = wb.results.map(function (r, i) {
+      return r.ok ? '<option value="' + i + '"' + (i === pending.sel ? ' selected' : '') + '>' + esc(r.sheetName) + ' — ' + r.workerCount + ' জন</option>' : '';
+    }).join('');
+    var monthText = p.needMonth ? '' : esc(monthLabel(p.month));
+    var html = '<dl class="kv"><dt>ফাইল</dt><dd>' + esc(pending.name) + '</dd>' +
+      '<dt>কর্মী</dt><dd>' + p.workerCount + ' জন</dd>' +
+      '<dt>দিন</dt><dd>' + p.days + '</dd>' +
+      (p.needMonth ? '' : '<dt>মাস</dt><dd>' + monthText + '</dd>') + '</dl>';
+    html += '<label for="sheetSel">কোন শিট থেকে নেবেন</label><select id="sheetSel">' + opts + '</select>' +
+      '<p class="muted">সব কর্মীর মূল শিটটি আগে থেকেই বাছাই করা আছে। প্রজেক্টের আলাদা শিট বাছাই করলে শুধু ওই প্রজেক্টের কর্মীরা থাকবে।</p>';
+    if (p.needMonth) {
+      html += '<label for="ym" style="margin-top:12px">কোন মাসের টাইমশিট?</label><input id="ym" type="month" value="' + esc(pending.ym) + '">';
+    }
+    if (p.mismatches.length) {
+      html += '<div class="warn">ফাইলের "Total" কলামের সাথে ' + p.mismatches.length + ' জনের হিসাব মেলেনি। অ্যাপ প্রতিদিনের ঘন্টা যোগ করে হিসাব করে।</div>';
+    }
+    if (p.overlaps.length) {
+      html += '<div class="warn">' + p.overlaps.length + 'টি দিনে একই কর্মীর একাধিক সাইটে ঘন্টা লেখা আছে। সেগুলো যোগ করা হয়েছে।</div>';
+    }
+    html += '<div class="stack"><button class="btn primary" id="btnSave" type="button">সংরক্ষণ করুন</button></div>';
+    box.innerHTML = html;
+    $('#sheetSel').addEventListener('change', function (ev) { pending.sel = +ev.target.value; renderPreview(); });
+    var ym = $('#ym');
+    if (ym) ym.addEventListener('input', function (ev) { pending.ym = ev.target.value; $('#btnSave').disabled = !pending.ym; });
+    $('#btnSave').disabled = p.needMonth && !pending.ym;
+    $('#btnSave').addEventListener('click', save);
+  }
+
+  function save() {
+    if (!pending) return;
+    var p = pending.wb.results[pending.sel];
+    if (p.needMonth) C.applyMonth(p, pending.ym);
+    if (months[p.month] && !window.confirm(monthLabel(p.month) + ' মাসের তথ্য আগে থেকেই আছে। বদলে দেবেন?')) return;
+    var rec = { month: p.month, dates: p.dates, workers: p.workers, days: p.days, source: pending.name, sheet: p.sheetName, count: p.workerCount, savedAt: Date.now() };
+    var done = function () {
+      months[rec.month] = rec;
+      state.month = state.month || rec.month;
+      pending = null; $('#preview').innerHTML = '';
+      renderSaved(); render();
+      toast(monthLabel(rec.month) + ' সংরক্ষিত হয়েছে (' + rec.count + ' জন)');
+    };
+    dbPut(rec).then(done).catch(function () {
+      memoryOnly = true; done();
+      toast('ফোনে সেভ করা যায়নি — অ্যাপ বন্ধ করলে তথ্য চলে যাবে।');
+    });
+  }
+
+  function renderSaved() {
+    var keys = Object.keys(months).sort().reverse(), box = $('#saved');
+    if (!keys.length) { box.innerHTML = '<p class="muted">এখনো কোনো মাস সংরক্ষিত নেই।</p>'; return; }
+    box.innerHTML = keys.map(function (k) {
+      var r = months[k], d = new Date(r.savedAt);
+      return '<div class="saved"><div><div class="t">' + esc(monthLabel(k)) + '</div><div class="s">' + r.count + ' জন · ' + esc(r.source) + ' · ' +
+        d.getDate() + '/' + (d.getMonth() + 1) + '/' + d.getFullYear() + '</div></div>' +
+        '<button class="btn small danger" type="button" data-del="' + k + '">মুছুন</button></div>';
+    }).join('') + (memoryOnly ? '<div class="warn">এই ফোনে স্থায়ীভাবে সেভ করা যাচ্ছে না।</div>' : '');
+  }
+
+  /* ---------- wiring ---------- */
+  function wire() {
+    $('#form').addEventListener('submit', function (e) { e.preventDefault(); search($('#iq').value); $('#iq').blur(); });
+    $('#btnAdmin').addEventListener('click', function () { show('admin'); });
+    $('#btnBack').addEventListener('click', function () { show('search'); render(); });
+    $('#file').addEventListener('change', onFile);
+    $('#basic').addEventListener('change', function (e) {
+      var v = parseFloat(e.target.value);
+      if (!(v > 0 && v <= 24)) { e.target.value = getBasic(); toast('১ থেকে ২৪ এর মধ্যে সংখ্যা দিন'); return; }
+      lsSet('basic', String(v)); toast('বেসিক ঘন্টা ' + num(v) + ' করা হয়েছে');
+    });
+    $('#result').addEventListener('click', function (e) {
+      var b = e.target.closest && e.target.closest('[data-m]');
+      if (b) { state.month = b.getAttribute('data-m'); render(); }
+    });
+    $('#saved').addEventListener('click', function (e) {
+      var b = e.target.closest && e.target.closest('[data-del]');
+      if (!b) return;
+      var k = b.getAttribute('data-del');
+      if (!window.confirm(monthLabel(k) + ' মাসের তথ্য মুছে ফেলবেন?')) return;
+      dbDel(k).catch(function () {}).then(function () {
+        delete months[k]; if (state.month === k) state.month = null;
+        renderSaved(); search(state.iq); toast('মুছে ফেলা হয়েছে');
+      });
+    });
+    function net() { $('#offBadge').hidden = navigator.onLine; }
+    window.addEventListener('online', net); window.addEventListener('offline', net); net();
+  }
+
+  function boot() {
+    wire();
+    try { if (navigator.storage && navigator.storage.persist) navigator.storage.persist(); } catch (e) { /* ignore */ }
+    if ('serviceWorker' in navigator && /^https?:$/.test(location.protocol)) {
+      navigator.serviceWorker.register('sw.js').catch(function () {});
+    }
+    dbAll().then(function (list) {
+      (list || []).forEach(function (r) { months[r.month] = r; });
+    }).catch(function () { memoryOnly = true; }).then(function () {
+      var last = lsGet('lastIq', '');
+      if (last) search(last); else render();
+    });
+  }
+  boot();
+})();
+</script>
+</body>
+</html>
